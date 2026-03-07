@@ -7,83 +7,81 @@
 
 ---
 
-## 🏆 Project Highlights
+## 🏆 Project Objectives
 - **Target**: AI4Dev '26 Hackathon (Healthcare & Life Sciences)
-- **Problem**: 90% of CKD cases are detected too late, leading to 2.4 million annual deaths.
-- **Solution**: A "Neo-Glass" clinical suite that detects CKD using basic, low-cost biomarkers.
-- **Impact**: Enables early intervention in lower-resource clinics across India and beyond.
+- **Problem**: Chronic Kidney Disease (CKD) affects 850 million people. 90% of cases are detected in late stages when intervention is less effective.
+- **Solution**: A comprehensive clinical support system that leverages machine learning to detect CKD using 24 common clinical biomarkers.
+- **Impact**: Provides a low-cost, high-precision screening tool for primary healthcare centers and resource-constrained clinical settings.
 
 ---
 
-## 🚀 The Solution: Simple. Powerful. Clinical.
+## 🚀 The Solution: Systematic Diagnostic Workflow
 
-RenalGuard AI transforms complex patient data into actionable clinical insights in 4 clear steps:
+RenalGuard AI streamlines the clinical analysis process through a structured 4-phase architecture:
 
-### 1. Unified Screening Hub
-The intuitive dashboard allows clinicians to input 24 key biomarkers across demographics, vitals, and blood/urine tests.
-![Screening Dashboard](docs/assets/insights.png)
+### 1. Patient Screening Intelligence
+A digitized clinical intake interface that captures comprehensive patient history, including vitals, blood chemistry, and urine analysis.
+![Clinical Intake Dashboard](docs/assets/insights.png)
 
-### 2. High-Precision AI Engine
-Using a multi-model ensemble (XGBoost, LightGBM), the system achieves **98.5% Accuracy** in early detection and automatically stages the condition (Stage 1-5).
+### 2. High-Precision Machine Learning Engine
+The system utilizes a Gradient Boosted Ensemble (XGBoost & LightGBM) to achieve **98.5% Accuracy** in binary classification and provides automated CKD Staging (Stage 1-5) based on eGFR calculations.
 ![Diagnostic Analysis](docs/assets/result.png)
 
-### 3. Explainable AI (SHAP)
-No "Black Box" predictions. We use **SHAP Waterfall Stories** to show exactly how biomarkers like Creatinine or Hemoglobin influenced the patient's risk score.
-![Model Explanation](docs/assets/shap.png)
+### 3. Explainable AI & Transparency (SHAP)
+To build clinical trust, the system incorporates **SHAP Interpretability**. This visualizes the mathematical contribution of specific biomarkers (e.g., Creatinine, Hemoglobin) to the specific patient's risk profile.
+![Model Interpretability](docs/assets/shap.png)
 
-### 4. Professional Clinical Reports
-Instantly generate and download professional PDF reports for the patient’s medical file, including context-aware recommendations.
-
----
-
-## 🛠️ Tech Stack & Technical Rigor
-
-We don't just build UI; we build robust data science pipelines.
-
-- **Frontend**: Streamlit with Custom Neo-Glass CSS (Ultra-Premium UX)
-- **ML Models**: XGBoost & LightGBM Ensemble (High-precision tabular learners)
-- **Explainability**: SHAP (Shapley Additive exPlanations) for Clinical Trust
-- **LLM Support**: Gemini Pro Integration (with robust Mock Fallbacks for POC)
-- **Dataset**: UCI Chronic Kidney Disease Dataset (Verified clinical records)
+### 4. Automated Clinical Documentation
+Generates professional-grade screening reports in PDF format, summarizing diagnostic results, feature importance, and evidence-based clinical recommendations.
 
 ---
 
-## 📂 Focused Project Structure
+## 🛠️ Technical Implementation & Methodology
+
+The platform is built on a robust data science pipeline, prioritizing clinical accuracy and interpretability.
+
+- **Interface**: Streamlit with a customized Professional Medical UI (Optimized for clarity and focus).
+- **Core Analytics**: Gradient Boosting Ensembles (Optimized for structured clinical data).
+- **Interpretability**: SHAP (Shapley Additive exPlanations) for model transparency.
+- **Conversational Support**: LLM-integrated clinical assistant (Gemini Pro) for query handling.
+- **Data Source**: UCI Chronic Kidney Disease Dataset (Verified clinical records).
+
+---
+
+## 📂 Project Architecture
 
 ```bash
 RenalGuard-AI/
-├── 📁 app/             # Main Streamlit UI & Design System
-├── 📁 src/             # The AI Engine (Models, Preprocessing, XAI)
-├── 📁 data/            # Clinical dataset (UCI Official)
-├── 📁 reports/         # Generated patient data reports
-├── 📁 docs/assets/     # High-impact visuals for judges
-└── requirements.txt    # Production dependencies
+├── 📁 app/             # Main Presentation Layer & UI Logic
+├── 📁 src/             # Core Analytical Engine (Models, Preprocessing, XAI)
+├── 📁 data/            # Clinical Datasets
+├── 📁 reports/         # Clinical Document Generation Output
+├── 📁 docs/assets/     # System Visualizations & Technical Documentation
+└── requirements.txt    # Production Environment Dependencies
 ```
 
 ---
 
-## 🏁 Quick Start for Judges
+## 🏁 Operational Deployment
 
-See the solution in action in under 2 minutes:
-
-1. **Clone & Install**
+1. **System Initialization**
    ```bash
    git clone https://github.com/Jeseem24/RenalGuard-AI.git
    cd RenalGuard-AI
    pip install -r requirements.txt
    ```
 
-2. **Run Application**
+2. **Launch Analytical Interface**
    ```bash
    streamlit run app/main.py
    ```
 
-3. **Try the Demo**: Open `localhost:8501`, go to **CKD Screening**, and use the default sample values to see the AI analyze a high-risk case in real-time.
+3. **Evaluation Protocol**: Navigate to the **CKD Screening** module, enter patient clinical parameters, and execute the diagnostic analysis to generate a risk profile.
 
 ---
 
 ## ⚖️ Medical Disclaimer
-*RenalGuard AI is an AI-assisted screening tool, not a diagnostic medical device. It is intended to assist clinicians in early detection and should be used alongside professional medical evaluation.*
+*RenalGuard AI is an AI-assisted screening tool, not a diagnostic medical device. It is intended to assist clinicians in early detection and should be used alongside professional medical evaluation and laboratory verification.*
 
 ---
 
