@@ -442,7 +442,7 @@ def show_clinical_suite():
             if img_b64:
                 st.image(
                     f"data:image/png;base64,{img_b64}",
-                    width=None,
+                    use_container_width=True,
                     caption="Biomarker contribution breakdown"
                 )
 
