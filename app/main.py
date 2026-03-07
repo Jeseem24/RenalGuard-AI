@@ -150,13 +150,27 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    # Simplified Navigation
+    # Navigation Options
+    nav_options = ["🏠 Home Dashboard", "🩺 Clinical Suite", "ℹ️ About Project"]
+    
+    # Sync radio index with session state
+    try:
+        active_idx = nav_options.index(st.session_state.page)
+    except ValueError:
+        active_idx = 0
+
+    # Top Navigation Widget
+    def handle_nav():
+        st.session_state.page = st.session_state.main_nav
+
     st.radio(
         "Navigation",
-        ["🏠 Home Dashboard", "🩺 Clinical Suite", "ℹ️ About Project"],
+        nav_options,
+        index=active_idx,
         horizontal=True,
         label_visibility="collapsed",
-        key="page"
+        key="main_nav",
+        on_change=handle_nav
     )
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('---')
