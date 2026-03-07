@@ -329,7 +329,7 @@ def show_clinical_suite():
                 st.markdown(f"<h1 style='color: {risk_color}; margin: 0;'>{risk_level} RISK</h1>", unsafe_allow_html=True)
                 st.markdown(f"**AI Confidence Level**: {res.get('confidence', 0):.1f}%")
                 st.progress(int(res.get('confidence', 0)), text="Model Confidence")
-                st.markdown(f'<div class="risk-indicator"><div class="risk-bar" style="width: {risk_score}%; background: {risk_color};"></div></div><p style="text-align: right; font-size: 0.8rem; color: #64748B;">Risk Score: {risk_score}/100</p>', unsafe_allow_html=True)
+                st.markdown(f'<div class="risk-indicator"><div class="risk-bar" style="width: {risk_score}%; background: {risk_color};"></div></div><p style="text-align: right; font-size: 0.8rem; color: #64748B;">Risk Score: {risk_score:.1f}/100</p>', unsafe_allow_html=True)
             with r_col2:
                 st.markdown("### Clinical Parameters")
                 m1, m2 = st.columns(2)
