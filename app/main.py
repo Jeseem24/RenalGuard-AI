@@ -182,6 +182,23 @@ def main():
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
+    # Load models into session state
+    if 'models_loaded' not in st.session_state:
+        if MODULES_LOADED:
+            try:
+                st.session_state.detector, st.session_state.stage_clf, st.session_state.preprocessor, st.session_state.feature_cols = load_models()
+                st.session_state.models_loaded = True
+            except Exception as e:
+                st.error(f"Error loading models: {e}")
+                st.session_state.models_loaded = False
+        else:
+            st.session_state.models_loaded = False
+
+    # Side-load references for convenience
+    detector = st.session_state.get('detector')
+    preprocessor = st.session_state.get('preprocessor')
+    feature_cols = st.session_state.get('feature_cols')
+
     # Page routing
     if page == "🏠 Home":
         show_home_page()
@@ -535,19 +552,38 @@ def show_explanation_page():
             # We need to ensure these are handled or mocked for the new code to run.
             # For now, I'll assume SHAPExplainer is imported and can be instantiated.
             
-            # Placeholder for SHAPExplainer instantiation and plot generation
-            # In a real app, you'd likely pass the necessary data/models to SHAPExplainer's constructor
-            # or have it load them internally.
-            # For the purpose of this edit, I'll add a dummy SHAPExplainer if it's not globally available.
             try:
-                explainer = SHAPExplainer() # Assuming it can be instantiated without args for plotting
-                fig = explainer.plot_waterfall(
-                    st.session_state.patient_data, 
-                    st.session_state.explanation
-                )
-                st.pyplot(fig)
-            except NameError:
-                st.warning("SHAPExplainer not fully initialized for plotting. Ensure models are loaded.")
+                if MODULES_LOADED and st.session_state.get('models_loaded'):
+                    from explainability.shap_explainer import SHAPExplainer
+                    detector = st.session_state.detector
+                    feature_cols = st.session_state.feature_cols
+                    
+                    # Instantiate with model and features
+                    explainer = SHAPExplainer(detector.best_model, feature_cols)
+                    
+                    # Need background data for explainer
+                    with st.spinner("Generating clinical evidence..."):
+                        # Just a small sample from create_sample_dataset for the background if needed
+                        df_sample = create_sample_dataset()
+                        df_processed, _ = st.session_state.preprocessor.fit_transform(df_sample)
+                        X_sample = df_processed[feature_cols]
+                        
+                        explainer.fit(X_sample, sample_size=50)
+                        
+                        # Prepare patient data
+                        df_patient = pd.DataFrame([st.session_state.patient_data])
+                        df_transformed = st.session_state.preprocessor.transform(df_patient)
+                        X_patient = df_transformed[feature_cols]
+                        
+                        # Use the correct method name from shap_explainer.py
+                        img_b64 = explainer.generate_waterfall_plot(X_patient)
+                        if img_b64:
+                            st.image(f"data:image/png;base64,{img_b64}", use_container_width=True)
+                else:
+                    st.warning("Clinical modules not fully active. Demonstration plot unavailable.")
+            except Exception as e:
+                st.error(f"Interpretability Hub Error: {e}")
+                st.info("Technical Detail: Ensure background distribution data is compatible with the ensemble model.")
                 # Fallback for demonstration if SHAPExplainer is not defined
                 st.markdown("*(SHAP waterfall plot placeholder)*")
             
