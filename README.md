@@ -3,7 +3,7 @@
 
 **AI-Powered Early Detection & Clinical Decision Support for Chronic Kidney Disease (CKD)**
 
-![RenalGuard Hero](docs/assets/home.png)
+![RenalGuard Hero](assets/home.png)
 
 ---
 
@@ -21,15 +21,15 @@ RenalGuard AI streamlines the clinical analysis process through a structured 4-p
 
 ### 1. Patient Screening Intelligence
 A digitized clinical intake interface that captures comprehensive patient history, including vitals, blood chemistry, and urine analysis.
-![Clinical Intake Dashboard](docs/assets/insights.png)
+![Clinical Intake Dashboard](assets/insights.png)
 
 ### 2. High-Precision Machine Learning Engine
 The system utilizes a Gradient Boosted Ensemble (XGBoost & LightGBM) to achieve **98.5% Accuracy** in binary classification and provides automated CKD Staging (Stage 1-5) based on eGFR calculations.
-![Diagnostic Analysis](docs/assets/result.png)
+![Diagnostic Analysis](assets/result.png)
 
 ### 3. Explainable AI & Transparency (SHAP)
 To build clinical trust, the system incorporates **SHAP Interpretability**. This visualizes the mathematical contribution of specific biomarkers (e.g., Creatinine, Hemoglobin) to the specific patient's risk profile.
-![Model Interpretability](docs/assets/shap.png)
+![Model Interpretability](assets/shap.png)
 
 ### 4. Automated Clinical Documentation
 Generates professional-grade screening reports in PDF format, summarizing diagnostic results, feature importance, and evidence-based clinical recommendations.
