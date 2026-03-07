@@ -185,28 +185,18 @@ for k, v in _defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# ─── MODULE IMPORTS ───────────────────────────────────────────────────────────
-try:
-    from preprocessing.data_preprocessor import CKDDataPreprocessor, create_sample_dataset
-    from models.ckd_detector import CKDDetector, CKDStageClassifier
-    from utils.pdf_generator import ClinicalReportGenerator
-    from utils.llm_assistant import get_chat_assistant
-    MODULES_LOADED = True
-except ImportError:
-    MODULES_LOADED = False
-    class CKDDataPreprocessor:
-        @staticmethod
-        def load(p): return None
-    class ClinicalReportGenerator: pass
-    def get_chat_assistant(): return None
-
-
 # ─── CACHED RESOURCES ─────────────────────────────────────────────────────────
+
 @st.cache_resource(show_spinner="⚕️ Loading Clinical AI Engine…")
 def load_models_cached():
-    if not MODULES_LOADED:
-        return None, None, None, None
     import joblib
+    try:
+        from preprocessing.data_preprocessor import CKDDataPreprocessor, create_sample_dataset
+        from models.ckd_detector import CKDDetector, CKDStageClassifier
+    except ImportError as e:
+        st.error(f"Missing essential modules for models: {e}")
+        return None, None, None, None
+
     mp = project_root / 'reports' / 'models'
     mp.mkdir(parents=True, exist_ok=True)
     dp, sp, pp = mp / 'ckd_detector.joblib', mp / 'stage_classifier.joblib', mp / 'preprocessor.joblib'
@@ -238,7 +228,11 @@ def load_models_cached():
 
 @st.cache_resource(show_spinner=False)
 def load_assistant():
-    return get_chat_assistant()
+    try:
+        from utils.llm_assistant import get_chat_assistant
+        return get_chat_assistant()
+    except ImportError:
+        return None
 
 
 # ─── NAVIGATION ───────────────────────────────────────────────────────────────
@@ -455,6 +449,7 @@ def page_screening():
                       use_container_width=True, key="gen_pdf"):
             with st.spinner("Compiling report…"):
                 try:
+                    from utils.pdf_generator import ClinicalReportGenerator
                     gen      = ClinicalReportGenerator()
                     pdf_path = gen.generate_report(
                         st.session_state.patient_data,
