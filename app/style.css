@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #6366F1; /* Indigo */
+    --primary-dark: #4F46E5;
+    --secondary: #10B981; /* Emerald */
+    --bg-main: #F8FAFC;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.stApp {
+    background: radial-gradient(circle at top right, #EEF2FF 0%, #F8FAFC 50%);
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Sidebar Customization */
+[data-testid="stSidebar"] {
+    background-color: white !important;
+    border-right: 1px solid #E2E8F0;
+}
+
+/* Glass Card - The anchor of the design */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-xl);
+    margin-bottom: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 40px -10px rgba(0, 0, 0, 0.12);
+}
+
+/* Metric Tile (Used in Dashboard) */
+.metric-tile {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid #F1F5F9;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.metric-tile:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+    transform: scale(1.02);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0.5rem 0;
+    letter-spacing: -0.02em;
+}
+
+.metric-label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Hero Text Design */
+.hero-title {
+    background: linear-gradient(135deg, #1E293B 0%, #4F46E5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    font-size: 4rem;
+    line-height: 1.0;
+    margin-bottom: 1rem;
+    letter-spacing: -0.04em;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: 2rem;
+    max-width: 600px;
+}
+
+/* Tabs: Clinical-style horizontal navigation */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 1rem;
+    padding: 0.5rem;
+    background-color: #F1F5F9;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 3.5rem;
+    padding: 0 2rem;
+    background-color: transparent;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: white !important;
+    color: var(--primary) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Buttons: Premium Actionable look */
+.stButton>button {
+    background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 0.75rem 2.5rem !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4) !important;
+}
+
+.stButton>button:hover {
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+/* Redesign for Results Page - "The Report Card" */
+.report-card {
+    border-left: 8px solid var(--primary);
+}
+
+.risk-danger { border-left-color: var(--danger); }
+.risk-warning { border-left-color: var(--warning); }
+.risk-success { border-left-color: var(--secondary); }
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
