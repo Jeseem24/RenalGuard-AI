@@ -478,6 +478,7 @@ def page_screening():
             with st.spinner("Analysing biomarker contributions…"):
                 try:
                     from explainability.shap_explainer import SHAPExplainer
+                    from preprocessing.data_preprocessor import create_sample_dataset
                     exp = SHAPExplainer(detector.best_model, feature_cols)
                     ds  = create_sample_dataset()
                     dsp, _ = preprocessor.fit_transform(ds)
@@ -545,27 +546,6 @@ def page_screening():
                 )
         else:
             rp2.caption("Click 'Prepare' to generate download link.")
-        st.markdown("---")
-
-        # Show cached SHAP results
-        exp_data = st.session_state.get('explanation', {})
-        if exp_data.get('top_risk_factors'):
-            top   = exp_data['top_risk_factors'][:3]
-            names = [f["feature"].upper() for f in top]
-            nstr  = (", ".join(names[:-1]) + f" and {names[-1]}"
-                     if len(names) > 1 else names[0])
-            st.info(
-                f"**Clinical Insight:** Your CKD risk appears **{lvl.lower()}** mainly "
-                f"because your **{nstr}** levels are the primary drivers of this assessment."
-            )
-
-        b64 = st.session_state.get('shap_img')
-        if b64:
-            st.image(
-                f"data:image/png;base64,{b64}",
-                use_container_width=True,
-                caption="Biomarker contribution to risk score"
-            )
         st.markdown("---")
 
         # ── 4. Chat Assistant ─────────────────────
