@@ -34,6 +34,33 @@ html, body, [class*="css"] {
 /* App background */
 .stApp {
     background: linear-gradient(135deg, #f0f4ff 0%, #fafbff 100%);
+    color: #1E293B !important;
+}
+
+/* 🟥 AGGRESSIVE TEXT COLOR OVERRIDES for Dark Mode conflicting hosts */
+h1, h2, h3, h4, h5, h6, p, span, div, label, li, .stMarkdown, .stText {
+    color: #1E293B !important;
+}
+.stNumberInput label, .stSelectbox label, .stRadio label, .stTextInput label {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+.stNumberInput input, .stSelectbox div[data-baseweb="select"], .stTextInput input {
+    background-color: white !important;
+    color: #000000 !important;
+    border: 1px solid #CBD5E1 !important;
+}
+.stSelectbox span.st-emotion-cache-1629p8f, .stSelectbox span {
+    color: #000000 !important;
+}
+div[data-baseweb="popover"] ul li {
+    color: #000000 !important;
+}
+.stRadio div[role="radiogroup"] label div {
+    color: #1E293B !important;
+}
+div[data-testid="stMetricValue"], div[data-testid="stMetricLabel"] {
+    color: #1E293B !important;
 }
 
 /* Hide Streamlit default top padding */
@@ -50,12 +77,12 @@ html, body, [class*="css"] {
 .rg-brand h1 {
     font-size: 2rem;
     font-weight: 900;
-    color: #4F46E5;
+    color: #4F46E5 !important;
     margin: 0;
     letter-spacing: -0.03em;
 }
 .rg-brand p {
-    color: #6B7280;
+    color: #6B7280 !important;
     font-size: 0.85rem;
     margin: 0;
 }
@@ -71,10 +98,11 @@ html, body, [class*="css"] {
     line-height: 1.05;
     letter-spacing: -0.04em;
     margin-bottom: 0.5rem;
+    color: transparent !important;
 }
 .rg-hero-sub {
     font-size: 1.1rem;
-    color: #64748B;
+    color: #64748B !important;
     max-width: 550px;
     line-height: 1.6;
     margin-bottom: 1.5rem;
@@ -94,7 +122,7 @@ html, body, [class*="css"] {
 .rg-metric-val {
     font-size: 2.2rem;
     font-weight: 900;
-    color: #4F46E5;
+    color: #4F46E5 !important;
     letter-spacing: -0.03em;
 }
 .rg-metric-lbl {
@@ -102,12 +130,12 @@ html, body, [class*="css"] {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #94A3B8;
+    color: #94A3B8 !important;
     margin-top: 0.25rem;
 }
 .rg-metric-sub {
     font-size: 0.8rem;
-    color: #64748B;
+    color: #64748B !important;
     margin-top: 0.1rem;
 }
 
@@ -120,8 +148,8 @@ html, body, [class*="css"] {
     height: 100%;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.rg-feature h4 { color: #1E293B; margin: 0 0 0.5rem 0; font-weight: 700; }
-.rg-feature p  { color: #64748B; margin: 0; font-size: 0.9rem; line-height: 1.5; }
+.rg-feature h4 { color: #1E293B !important; margin: 0 0 0.5rem 0; font-weight: 700; }
+.rg-feature p  { color: #64748B !important; margin: 0; font-size: 0.9rem; line-height: 1.5; }
 
 /* Section label */
 .rg-section-label {
@@ -129,19 +157,19 @@ html, body, [class*="css"] {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #94A3B8;
+    color: #94A3B8 !important;
     margin-bottom: 0.75rem;
 }
 
 /* Risk badge */
-.rg-risk-high     { color: #EF4444; }
-.rg-risk-moderate { color: #F59E0B; }
-.rg-risk-low      { color: #10B981; }
+.rg-risk-high     { color: #EF4444 !important; }
+.rg-risk-moderate { color: #F59E0B !important; }
+.rg-risk-low      { color: #10B981 !important; }
 
 /* Divider */
 .rg-divider {
     border: none;
-    border-top: 1px solid #E2E8F0;
+    border-top: 1px solid #CBD5E1;
     margin: 1.5rem 0;
 }
 
