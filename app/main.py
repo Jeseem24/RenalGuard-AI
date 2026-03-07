@@ -276,7 +276,7 @@ def render_nav():
     c1, c2, c3 = st.columns(3)
     for i, (col, label) in enumerate(zip([c1, c2, c3], NAV)):
         t = "primary" if st.session_state.active_page == i else "secondary"
-        if col.button(label, type=t, use_container_width=True, key=f"nav_{i}"):
+        if col.button(label, type=t, width="stretch", key=f"nav_{i}"):
             if st.session_state.active_page != i:
                 st.session_state.active_page = i
                 st.rerun()
@@ -389,7 +389,7 @@ def page_screening():
             submitted = st.form_submit_button(
                 "⚡ Execute Diagnostic Analysis",
                 type="primary",
-                use_container_width=True
+                width="stretch"
             )
 
     # ─── RESULT PANEL ─────────────────────────────
@@ -513,7 +513,7 @@ def page_screening():
         if b64:
             st.image(
                 f"data:image/png;base64,{b64}",
-                use_container_width=True,
+                width="stretch",
                 caption="Biomarker contribution to risk score"
             )
         st.markdown("---")
@@ -522,7 +522,7 @@ def page_screening():
         st.markdown("##### 📄 Clinical Report")
         rp1, rp2 = st.columns(2)
         if rp1.button("📝 Prepare PDF Report", type="primary",
-                      use_container_width=True, key="gen_pdf"):
+                      width="stretch", key="gen_pdf"):
             with st.spinner("Compiling report…"):
                 try:
                     from utils.pdf_generator import ClinicalReportGenerator
@@ -542,7 +542,7 @@ def page_screening():
                 rp2.download_button(
                     "📥 Download PDF", f,
                     "RenalGuard_Report.pdf", "application/pdf",
-                    use_container_width=True, key="dl_pdf"
+                    width="stretch", key="dl_pdf"
                 )
         else:
             rp2.caption("Click 'Prepare' to generate download link.")
@@ -586,7 +586,7 @@ def page_screening():
 
         st.markdown("---")
         if st.button("🔄 Start New Patient Screening", type="secondary",
-                     use_container_width=True, key="reset"):
+                     width="stretch", key="reset"):
             for k, v in _defaults.items():
                 st.session_state[k] = v
             st.rerun()
