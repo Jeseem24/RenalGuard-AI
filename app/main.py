@@ -339,18 +339,40 @@ def show_clinical_suite():
             st.markdown('</div>', unsafe_allow_html=True)
             
             # Action Buttons Inline
-            st.markdown('### 📄 Automated Reporting')
-            st.markdown("Instantly generate a verifiable PDF clinical report containing all inputs, calculations, and AI observations.")
-            try:
-                from utils.pdf_generator import ClinicalReportGenerator
-                pdf_gen = ClinicalReportGenerator()
-                pdf_path = pdf_gen.generate_report(st.session_state.patient_data, st.session_state.prediction_result, st.session_state.explanation)
-                with open(pdf_path, "rb") as f:
-                    st.download_button("📥 Download Official Clinical Report (PDF)", f, "RenalGuard_Report.pdf", "application/pdf", use_container_width=True, type="primary")
-            except Exception as e:
-                st.error(f"Generate Report Error: {e}")
+            st.divider()
+            st.markdown('### 📄 Clinical Report Generation')
+            st.markdown("Prepare a verifiable diagnostic document containing all biomarkers, eGFR calculations, and AI interpretability insights.")
             
-            st.markdown(f'<br>', unsafe_allow_html=True)
+            # On-demand PDF generation
+            rep_col1, rep_col2 = st.columns([1, 1.2])
+            with rep_col1:
+                if st.button("📝 Prepare Digital Report", type="primary", use_container_width=True):
+                    with st.spinner("Compiling clinical data..."):
+                        try:
+                            from utils.pdf_generator import ClinicalReportGenerator
+                            pdf_gen = ClinicalReportGenerator()
+                            # Ensure we have the latest explanation in state
+                            exp = st.session_state.get('explanation', {})
+                            pdf_path = pdf_gen.generate_report(st.session_state.patient_data, st.session_state.prediction_result, exp)
+                            st.session_state.report_ready_path = pdf_path
+                            st.success("Report Compiled Successfully!")
+                        except Exception as e:
+                            st.error(f"Error compiling report: {e}")
+            
+            with rep_col2:
+                if st.session_state.get('report_ready_path'):
+                    with open(st.session_state.report_ready_path, "rb") as f:
+                        st.download_button(
+                            "📥 Download Official PDF", 
+                            f, 
+                            "RenalGuard_Clinical_Report.pdf", 
+                            "application/pdf", 
+                            use_container_width=True
+                        )
+                else:
+                    st.info("Click 'Prepare' to generate the download link.")
+            
+            st.divider()
 
             # --- SHAP Explanation Integrated Inline ---
             st.markdown('### 🔍 AI Interpretability Summary')
@@ -408,9 +430,9 @@ def show_clinical_suite():
                                 st.session_state.chat_history.append({'role': 'assistant', 'content': response})
                                 st.rerun()
 
-                if prompt := st.chat_input("Ask a clinical question or about your results...", key="chat_input"):
+                if prompt := st.chat_input("Ask about these results (e.g., 'What is eGFR?')", key="chat_input"):
                     st.session_state.chat_history.append({'role': 'user', 'content': prompt})
-                    with st.spinner("Thinking..."):
+                    with st.spinner("Analyzing guidance..."):
                         response = st.session_state.chat_assistant.send_message(prompt)
                     st.session_state.chat_history.append({'role': 'assistant', 'content': response})
                     st.rerun()
