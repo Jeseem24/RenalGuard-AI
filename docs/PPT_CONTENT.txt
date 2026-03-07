@@ -1,0 +1,223 @@
+================================================================================
+                    RENALGUARD AI - PPT CONTENT
+                    FOR AI4Dev '26 HACKATHON
+================================================================================
+
+SLIDE 1 – TITLE SLIDE
+─────────────────────────
+PSG College of Technology
+Coding Club
+
+AI4Dev '26 Hackathon
+
+Project Title:
+RenalGuard AI
+
+Tagline:
+AI-Powered Early Detection & Clinical Decision Support for Chronic Kidney Disease
+
+Team Members: [Your Names]
+Team ID: [Your Team ID]
+
+
+SLIDE 2 – PROBLEM DEFINITION
+─────────────────────────────
+Selected Domain: Healthcare and Life Sciences
+
+Problem Statement:
+• Chronic Kidney Disease affects 850 MILLION people worldwide
+• Nearly 90% of CKD cases are detected ONLY in late stages
+• By the time symptoms appear, kidneys are already 70-85% damaged
+• India has the 2nd highest CKD burden globally
+
+Why This Matters:
+• Late detection leads to dialysis (₹15,000-25,000/month) or transplant (₹5-15 lakhs)
+• Early detection at Stage 1-2 can PREVENT progression
+• No accessible AI-based screening tool exists for early detection
+
+Project Title: RenalGuard AI
+
+
+SLIDE 3 – EXISTING SOLUTIONS AND GAP
+─────────────────────────────────────
+Existing Solutions:
+• eGFR calculators in hospitals
+• Manual diagnosis by nephrologists
+• Expensive diagnostic equipment
+• Hospital-based clinical software
+
+Gaps Identified:
+❌ No AI-based screening tools
+❌ Limited accessibility in rural healthcare
+❌ No explainable AI for medical predictions
+❌ No automated clinical reports
+❌ No decision-support for healthcare workers
+
+Statistics:
+• 80% of CKD deaths occur in developing countries
+• Rural populations lack access to specialists
+• Average delay in diagnosis: 3-5 years
+
+
+SLIDE 4 – SOLUTION OVERVIEW
+────────────────────────────
+RenalGuard AI - Solution:
+
+Core Capabilities:
+✓ AI-based CKD risk prediction (Binary Classification)
+✓ CKD stage estimation (Multi-class Classification)
+✓ Explainable AI insights using SHAP
+✓ Conversational AI assistant (Gemini API)
+✓ Automated PDF clinical reports
+
+Technology Stack:
+
+Machine Learning:
+• XGBoost
+• LightGBM
+• Random Forest
+• Logistic Regression
+
+Data Processing:
+• Python
+• Pandas
+• Scikit-learn
+
+Explainability:
+• SHAP (SHapley Additive exPlanations)
+
+Application:
+• Streamlit
+
+AI Assistant:
+• Google Gemini API
+
+
+SLIDE 5 – PROOF OF CONCEPT FOR MVP
+───────────────────────────────────
+Working Prototype Flow:
+
+Step 1: User enters patient test parameters
+        → Simple form interface
+        → 24 clinical parameters
+
+Step 2: Machine learning model predicts CKD risk
+        → Binary classification: CKD/Not CKD
+        → Risk score: 0-100
+
+Step 3: System estimates CKD stage
+        → Stage 1-5 classification
+        → eGFR calculation
+
+Step 4: SHAP explainability shows contributing factors
+        → Waterfall plot visualization
+        → Feature contribution percentages
+
+Step 5: AI assistant explains results
+        → Natural language explanation
+        → Q&A capability
+
+Step 6: Clinical PDF report generated
+        → Downloadable report
+        → Patient-friendly format
+
+TRL Level 3+ Proof of Concept ✓
+
+
+SLIDE 6 – REALNESS
+───────────────────
+Originality:
+• First solution combining ML + Explainable AI + Conversational AI for CKD screening
+• Novel integration of multiple AI technologies
+• Focus on resource-limited healthcare settings
+
+Feasibility:
+✓ Uses publicly available UCI CKD Dataset (400 samples)
+✓ Lightweight ML models (XGBoost, LightGBM)
+✓ No expensive infrastructure required
+✓ Web-based deployment (Streamlit Cloud)
+
+Viability:
+✓ Can be used in Primary Health Centers (PHCs)
+✓ Suitable for telemedicine platforms
+✓ Applicable for community health workers
+
+Research References:
+• UCI CKD Dataset - University of California, Irvine
+• KDIGO Clinical Practice Guidelines
+• SHAP: Lundberg & Lee (2017)
+• XGBoost: Chen & Guestrin (2016)
+
+
+SLIDE 7 – BUSINESS MODEL
+─────────────────────────
+Impact:
+
+Healthcare Impact:
+• Early CKD detection → Reduced disease progression
+• Prevent dialysis cases → Lower healthcare costs
+• Improved preventive care → Better patient outcomes
+
+Economic Impact:
+• Early screening cost: ₹50-100 per patient
+• Dialysis prevention savings: ₹1.8-3 lakhs/year per patient
+• Potential to save millions in healthcare expenditure
+
+Target Market:
+• Hospitals and diagnostic labs
+• Primary Health Centers (PHCs)
+• Government healthcare programs (Ayushman Bharat)
+• Telemedicine platforms
+
+Revenue Models:
+• B2G: Government healthcare partnerships
+• B2B: Hospital SaaS subscriptions
+• B2B2C: Diagnostic lab integration
+• Freemium: Basic free, advanced paid features
+
+
+SLIDE 8 – SUBMISSIONS
+──────────────────────
+GitHub Repository:
+• Complete source code with documentation
+• Modular architecture
+• Well-structured Python project
+• requirements.txt included
+• README with installation instructions
+
+Demo Video:
+• 3-5 minute walkthrough
+• Live demonstration of the application
+• Shows prediction → explanation → chat → report flow
+
+Submission Links:
+GitHub: [Your Repository URL]
+Demo Video: [Your Video URL]
+
+
+SLIDE 9 – THANK YOU
+────────────────────
+Project Name:
+RenalGuard AI
+
+Tagline:
+"AI-Powered Early Detection & Clinical Decision Support for Chronic Kidney Disease"
+
+Hackathon:
+AI4Dev '26 - National Level Hackathon
+AI-Enabled Transformative Technologies for Global Development
+
+Organized by:
+PSG College of Technology, Coimbatore
+Coding Club
+
+Thank You for Your Attention!
+
+Questions?
+
+Contact: [Your Email/Contact]
+
+
+================================================================================
+                    END OF PPT CONTENT
+================================================================================
