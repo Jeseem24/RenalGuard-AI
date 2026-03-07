@@ -163,10 +163,10 @@ class ClinicalReportGenerator:
         col_width = 47.5
         
         results = [
-            ('Risk Score', f"{risk_score}/100"),
+            ('Risk Score', f"{float(risk_score):.1f}/100"),
             ('CKD Stage', f"Stage {stage}"),
-            ('eGFR', f"{egfr} mL/min/1.73m²"),
-            ('Confidence', f"{prediction_result.get('confidence', 'N/A')}%")
+            ('eGFR', f"{float(egfr):.1f} mL/min/1.73m²" if egfr != 'N/A' else 'N/A'),
+            ('Confidence', f"{float(prediction_result.get('confidence', 0)):.1f}%")
         ]
         
         for label, value in results:

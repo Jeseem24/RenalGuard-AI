@@ -470,7 +470,54 @@ def page_screening():
         )
         st.markdown("---")
 
-        # ── 2. PDF Report ─────────────────────────
+        # ── 2. Key Factors (SHAP) ─────────────────
+        st.markdown("##### 🔍 Key Factors Influencing Your Results")
+        st.caption("Why the AI assigned this specific risk level — based on your biomarkers.")
+
+        if not st.session_state.shap_done:
+            with st.spinner("Analysing biomarker contributions…"):
+                try:
+                    from explainability.shap_explainer import SHAPExplainer
+                    exp = SHAPExplainer(detector.best_model, feature_cols)
+                    ds  = create_sample_dataset()
+                    dsp, _ = preprocessor.fit_transform(ds)
+                    exp.fit(dsp[feature_cols], sample_size=50)
+
+                    dpt   = pd.DataFrame([st.session_state.patient_data])
+                    dptt  = preprocessor.transform(dpt)
+                    X_pt  = dptt[feature_cols]
+
+                    exp_data = exp.explain_prediction(X_pt)
+                    st.session_state.explanation = exp_data
+                    st.session_state.shap_done   = True
+
+                    b64 = exp.generate_waterfall_plot(X_pt)
+                    st.session_state.shap_img = b64
+                except Exception as e:
+                    st.warning(f"Risk factor analysis unavailable: {e}")
+
+        # Show cached SHAP results
+        exp_data = st.session_state.get('explanation', {})
+        if exp_data.get('top_risk_factors'):
+            top   = exp_data['top_risk_factors'][:3]
+            names = [f["feature"].upper() for f in top]
+            nstr  = (", ".join(names[:-1]) + f" and {names[-1]}"
+                     if len(names) > 1 else names[0])
+            st.info(
+                f"**Clinical Insight:** Your CKD risk appears **{lvl.lower()}** mainly "
+                f"because your **{nstr}** levels are the primary drivers of this assessment."
+            )
+
+        b64 = st.session_state.get('shap_img')
+        if b64:
+            st.image(
+                f"data:image/png;base64,{b64}",
+                use_container_width=True,
+                caption="Biomarker contribution to risk score"
+            )
+        st.markdown("---")
+
+        # ── 3. PDF Report ─────────────────────────
         st.markdown("##### 📄 Clinical Report")
         rp1, rp2 = st.columns(2)
         if rp1.button("📝 Prepare PDF Report", type="primary",
@@ -499,32 +546,6 @@ def page_screening():
         else:
             rp2.caption("Click 'Prepare' to generate download link.")
         st.markdown("---")
-
-        # ── 3. Key Factors (SHAP) ─────────────────
-        st.markdown("##### 🔍 Key Factors Influencing Your Results")
-        st.caption("Why the AI assigned this specific risk level — based on your biomarkers.")
-
-        if not st.session_state.shap_done:
-            with st.spinner("Analysing biomarker contributions…"):
-                try:
-                    from explainability.shap_explainer import SHAPExplainer
-                    exp = SHAPExplainer(detector.best_model, feature_cols)
-                    ds  = create_sample_dataset()
-                    dsp, _ = preprocessor.fit_transform(ds)
-                    exp.fit(dsp[feature_cols], sample_size=50)
-
-                    dpt   = pd.DataFrame([st.session_state.patient_data])
-                    dptt  = preprocessor.transform(dpt)
-                    X_pt  = dptt[feature_cols]
-
-                    exp_data = exp.explain_prediction(X_pt)
-                    st.session_state.explanation = exp_data
-                    st.session_state.shap_done   = True
-
-                    b64 = exp.generate_waterfall_plot(X_pt)
-                    st.session_state.shap_img = b64
-                except Exception as e:
-                    st.warning(f"Risk factor analysis unavailable: {e}")
 
         # Show cached SHAP results
         exp_data = st.session_state.get('explanation', {})
