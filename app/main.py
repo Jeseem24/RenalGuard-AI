@@ -194,12 +194,57 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricLabel"] {
     border-radius: 12px !important;
     font-weight: 600 !important;
 }
+
+/* 🧪 PREMIUM ANIMATIONS */
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 5px rgba(99,102,241,0.2); }
+    50% { box-shadow: 0 0 20px rgba(99,102,241,0.6); }
+    100% { box-shadow: 0 0 5px rgba(99,102,241,0.2); }
+}
+
+.rg-pulse {
+    animation: glowPulse 2s infinite ease-in-out;
+    border: 1px solid rgba(99,102,241,0.3) !important;
+}
+
+.rg-boot-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(255,255,255,0.98);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.rg-boot-loader {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #4F46E5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.rg-boot-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    color: #4F46E5;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ─── SESSION STATE ────────────────────────────────────────────────────────────
 _defaults = {
     'active_page':       0,
+    'booting':           False,
     'prediction_made':   False,
     'patient_data':      {},
     'prediction_result': {},
@@ -279,6 +324,7 @@ def render_nav():
         if col.button(label, type=t, width="stretch", key=f"nav_{i}"):
             if st.session_state.active_page != i:
                 st.session_state.active_page = i
+                st.session_state.booting = True
                 st.rerun()
     st.markdown("<hr class='rg-divider'>", unsafe_allow_html=True)
 
@@ -294,6 +340,7 @@ def page_home():
     )
     if st.button("🚀 Start Diagnostic Screening", type="primary", key="cta_start"):
         st.session_state.active_page = 1
+        st.session_state.booting = True
         st.rerun()
 
     st.markdown("---")
@@ -548,41 +595,72 @@ def page_screening():
             rp2.caption("Click 'Prepare' to generate download link.")
         st.markdown("---")
 
-        # ── 4. Chat Assistant ─────────────────────
+    # ── 4. Chat Assistant (Puter.js Integration) ──
         st.markdown("##### 💬 Virtual Clinical Assistant")
-        assistant = load_assistant()
-        if assistant:
-            assistant.set_context(
-                st.session_state.patient_data,
-                st.session_state.prediction_result,
-                st.session_state.explanation
-            )
-            for msg in st.session_state.chat_history:
-                with st.chat_message(msg['role']):
-                    st.markdown(msg['content'])
+        st.caption("Powered by Gemini 3.0 via Puter.js — free, unlimited clinical guidance.")
+        
+        # Prepare context for Puter.js
+        pt_data = st.session_state.patient_data
+        pr_data = st.session_state.prediction_result
+        ex_data = st.session_state.explanation
+        
+        context_msg = f"Patient: {pt_data.get('age')}yo. Risk: {pr_data.get('risk_level')}. Stage: {pr_data.get('stage')}. eGFR: {pr_data.get('egfr')}. Top Factor: {ex_data.get('top_risk_factors',[{}])[0].get('feature','N/A')}"
 
-            if not st.session_state.chat_history:
-                qs = (assistant.get_suggested_questions() or [])[:4]
-                sq1, sq2 = st.columns(2)
-                for i, q in enumerate(qs):
-                    btn_col = sq1 if i % 2 == 0 else sq2
-                    if btn_col.button(q, key=f"sug_{i}"):
-                        with st.spinner("Thinking…"):
-                            resp = assistant.send_message(q)
-                        st.session_state.chat_history += [
-                            {'role': 'user',      'content': q},
-                            {'role': 'assistant', 'content': resp},
-                        ]
-                        st.rerun()
+        chat_html = f"""
+        <script src="https://js.puter.com/v2/"></script>
+        <div id="chat-container" style="font-family: 'Inter', sans-serif; height: 400px; display: flex; flex-direction: column; background: #fafbff; border-radius: 15px; border: 1px solid #E2E8F0; overflow: hidden;">
+            <div id="messages" style="flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; color: #1E293B;">
+                <div style="background: #EEF2FF; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #4F46E5;">
+                    <b>RenalGuard AI:</b> Hello! I've analyzed your results. I'm ready to explain your <b>{pr_data.get('risk_level')} risk</b> and <b>Stage {pr_data.get('stage')}</b> status. What would you like to know?
+                </div>
+            </div>
+            <div style="padding: 10px; background: white; border-top: 1px solid #E2E8F0; display: flex; gap: 8px;">
+                <input type="text" id="user-input" placeholder="Ask about diet, medications, or results..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #CBD5E1; outline: none; font-size: 0.85rem;">
+                <button onclick="sendMessage()" style="background: #4F46E5; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600;">Send</button>
+            </div>
+        </div>
 
-            if prompt := st.chat_input("Ask about your results…", key="chat_in"):
-                with st.spinner("Thinking…"):
-                    resp = assistant.send_message(prompt)
-                st.session_state.chat_history += [
-                    {'role': 'user',      'content': prompt},
-                    {'role': 'assistant', 'content': resp},
-                ]
-                st.rerun()
+        <script>
+            const msgContainer = document.getElementById('messages');
+            const input = document.getElementById('user-input');
+            const context = "{context_msg}";
+
+            input.addEventListener("keypress", (e) => {{ if (e.key === "Enter") sendMessage(); }});
+
+            async function sendMessage() {{
+                const text = input.value.trim();
+                if (!text) return;
+
+                // Add User Message
+                addMessage('You', text, '#F8FAFC');
+                input.value = '';
+
+                try {{
+                    const response = await puter.ai.chat(
+                        `Context: ${{context}}. User Question: ${{text}}. Rules: Be a medical assistant, stay empathetic, mention you are AI not a doctor.`, 
+                        {{ model: 'gemini-3-flash-preview' }}
+                    );
+                    addMessage('RenalGuard AI', response, '#EEF2FF', '#4F46E5');
+                }} catch (err) {{
+                    addMessage('System', 'Error connecting to Clinical AI. Please try again.', '#FEF2F2');
+                }}
+            }}
+
+            function addMessage(role, text, bg, borderCol) {{
+                const div = document.createElement('div');
+                div.style.padding = '10px';
+                div.style.borderRadius = '10px';
+                div.style.marginBottom = '10px';
+                div.style.background = bg;
+                if (borderCol) div.style.borderLeft = `4px solid ${{borderCol}}`;
+                div.innerHTML = `<b>${{role}}:</b> ${{text}}`;
+                msgContainer.appendChild(div);
+                msgContainer.scrollTop = msgContainer.scrollHeight;
+            }}
+        </script>
+        """
+        import streamlit.components.v1 as components
+        components.html(chat_html, height=450)
 
         st.markdown("---")
         if st.button("🔄 Start New Patient Screening", type="secondary",
@@ -610,6 +688,7 @@ def page_about():
 - **Models**: XGBoost + LightGBM Ensemble
 - **Explainability**: SHAP Feature Importance
 - **eGFR**: Cockcroft-Gault Formula
+- **Intelligence**: Gemini 3.0 via Puter.js
 - **Framework**: Streamlit
         """)
     with c2:
@@ -636,6 +715,18 @@ def page_about():
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 def main():
+    if st.session_state.get('booting', False):
+        st.markdown("""
+        <div class="rg-boot-overlay">
+            <div class="rg-boot-loader"></div>
+            <div class="rg-boot-text">⚕️ Initializing Clinical AI Engine...</div>
+        </div>
+        """, unsafe_allow_html=True)
+        import time
+        time.sleep(1.8)  # Dramatic pause for the wowsome factor
+        st.session_state.booting = False
+        st.rerun()
+
     render_nav()
     p = st.session_state.active_page
     if   p == 0: page_home()
