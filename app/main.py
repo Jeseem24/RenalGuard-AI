@@ -211,7 +211,7 @@ def show_home_page():
         st.markdown('''<div class="glass-card"><h4>🤖 AI Detection Engine</h4><p>Ensemble models (XGBoost + LightGBM) trained on gold-standard clinical data for ultra-early risk identification.</p></div>''', unsafe_allow_html=True)
         st.markdown('''<div class="glass-card"><h4>📄 Clinical Reporting</h4><p>Generate professional-grade PDF reports for patients and specialists with automated clinical narratives.</p></div>''', unsafe_allow_html=True)
     with f_col2:
-        st.markdown('''<div class="glass-card"><h4>🔍 SHAP Interpretability</h4><p>Transparent AI that explains 'why' a risk level was assigned, visualizing key contributors like Creatinine and Hemoglobin.</p></div>''', unsafe_allow_html=True)
+        st.markdown('''<div class="glass-card"><h4>🔍 Clinical Insights</h4><p>Transparent AI that explains exactly which biomarkers (like Creatinine and Hemoglobin) drove the risk assessment in plain English.</p></div>''', unsafe_allow_html=True)
         st.markdown('''<div class="glass-card"><h4>💬 Virtual Clinical Assistant</h4><p>LLM-integrated consultative interface to help clinicians and patients respond to screening actions immediately.</p></div>''', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -327,7 +327,8 @@ def show_clinical_suite():
             with r_col1:
                 st.markdown(f"### Diagnostic Summary")
                 st.markdown(f"<h1 style='color: {risk_color}; margin: 0;'>{risk_level} RISK</h1>", unsafe_allow_html=True)
-                st.markdown(f"**Confidence Level**: {res.get('confidence', 0):.1f}%")
+                st.markdown(f"**AI Confidence Level**: {res.get('confidence', 0):.1f}%")
+                st.progress(int(res.get('confidence', 0)), text="Model Confidence")
                 st.markdown(f'<div class="risk-indicator"><div class="risk-bar" style="width: {risk_score}%; background: {risk_color};"></div></div><p style="text-align: right; font-size: 0.8rem; color: #64748B;">Risk Score: {risk_score}/100</p>', unsafe_allow_html=True)
             with r_col2:
                 st.markdown("### Clinical Parameters")
@@ -374,13 +375,13 @@ def show_clinical_suite():
             
             st.divider()
 
-            # --- SHAP Explanation Integrated Inline ---
-            st.markdown('### 🔍 AI Interpretability Summary')
-            st.markdown("Understanding the specific biomarker contributions to the patient's risk profile.")
+            # --- Plain-English Explanation Integrated Inline ---
+            st.markdown('### 🔍 Key Factors Influencing Your Results')
+            st.markdown("Understanding why the AI assigned this specific risk level based on your biomarkers.")
             try:
                 from explainability.shap_explainer import SHAPExplainer
                 explainer = SHAPExplainer(detector.best_model, feature_cols)
-                with st.spinner("Generating clinical evidence..."):
+                with st.spinner("Analyzing risk factors..."):
                     df_sample = create_sample_dataset()
                     df_processed, _ = preprocessor.fit_transform(df_sample)
                     X_sample = df_processed[feature_cols]
@@ -393,9 +394,17 @@ def show_clinical_suite():
                     explanation_data = explainer.explain_prediction(X_patient)
                     st.session_state.explanation = explanation_data
                     
+                    # Generate Natural Language Summary
+                    if 'top_risk_factors' in explanation_data and explanation_data['top_risk_factors']:
+                        top_factors = explanation_data['top_risk_factors'][:3]
+                        factor_names = [f["feature"].upper() for f in top_factors]
+                        factor_str = ", ".join(factor_names[:-1]) + f", and {factor_names[-1]}" if len(factor_names) > 1 else factor_names[0]
+                        
+                        st.info(f"**Clinical Insight:** Your CKD risk appears {risk_level.lower()} mainly because your **{factor_str}** levels are driving the prediction algorithm.")
+                    
                     img_b64 = explainer.generate_waterfall_plot(X_patient)
                     if img_b64:
-                        st.image(f"data:image/png;base64,{img_b64}", use_container_width=True)
+                        st.image(f"data:image/png;base64,{img_b64}", use_container_width=True, caption="Visual breakdown of contributing biomarkers")
             except Exception as e:
                 st.error(f"Interpretability Module Error: {e}")
                 
@@ -438,7 +447,7 @@ def show_clinical_suite():
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.divider()
             if st.button("🔄 Clear Data and Rerun New Patient", type="secondary", use_container_width=True):
                 st.session_state.prediction_made = False
                 st.session_state.chat_history = []

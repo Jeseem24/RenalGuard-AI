@@ -89,11 +89,10 @@ class ClinicalReportGenerator:
         # Disclaimer
         pdf.set_fill_color(255, 243, 205)  # Light yellow
         pdf.set_text_color(133, 100, 4)  # Dark yellow
-        pdf.set_font('Helvetica', 'I', 8)
+        pdf.set_font('Helvetica', 'B', 9)
         pdf.ln(5)
         pdf.multi_cell(0, 5, 
-            'DISCLAIMER: This is an AI-assisted screening report. It is NOT a medical diagnosis. '
-            'Please consult a qualified nephrologist for clinical evaluation.',
+            'CLINICAL DISCLAIMER: This is an AI-assisted predictive screening report designed as a clinical decision support tool. It is NOT a definitive medical diagnosis. All results must be validated by a qualified nephrologist or medical professional before commencing treatment.',
             align='C', fill=True)
         
         pdf.ln(10)
@@ -276,13 +275,13 @@ class ClinicalReportGenerator:
     def _add_explanation_section(self, pdf: FPDF, explanation: Dict):
         """Add AI explanation section"""
         pdf.set_font('Helvetica', 'B', 14)
-        pdf.cell(0, 10, 'AI Explanation', ln=True)
+        pdf.cell(0, 10, 'Key Factors Influencing Prediction', ln=True)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(3)
         
         pdf.set_font('Helvetica', '', 10)
         pdf.multi_cell(0, 6, 
-            'The AI model identified the following factors as most contributing to the prediction:')
+            'The predictive model identified the following clinical biomarkers as the primary drivers of this risk assessment:')
         pdf.ln(3)
         
         if explanation and 'top_risk_factors' in explanation:
