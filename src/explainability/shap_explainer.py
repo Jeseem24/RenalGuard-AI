@@ -83,9 +83,16 @@ class SHAPExplainer:
             
         # 2. Handle base value reduction
         bv = self.explainer.expected_value
-        if isinstance(bv, (list, np.ndarray)):
-            bv = np.array(bv).flatten()
-            bv = bv[1] if len(bv) > 1 else bv[0]
+        if hasattr(bv, "__len__"):
+            # If it's a list or multi-D array
+            bv_arr = np.array(bv).flatten()
+            if bv_arr.size > 1:
+                bv = bv_arr[1] # Take positive class
+            else:
+                bv = bv_arr[0]
+        elif isinstance(bv, np.ndarray) and bv.ndim == 0:
+            # Handle 0-D numpy arrays
+            bv = float(bv)
             
         return sv, float(bv)
 
