@@ -69,29 +69,43 @@ class SHAPExplainer:
         """Helper to get 1D SHAP values and scalar base value reliably."""
         sv_raw = self.explainer.shap_values(X)
         
-        # 1. Handle value reduction
+        # 1. Handle value reduction (List -> Array)
         if isinstance(sv_raw, list):
             sv = sv_raw[1] if len(sv_raw) > 1 else sv_raw[0]
         else:
             sv = sv_raw
             
+        # sv is likely (1, 24) or (1, 24, 2)
         sv = np.squeeze(sv)
+        
+        # If still 2D after squeezing, it's (Features, Classes) or (Classes, Features)
+        if sv.ndim == 2:
+            n_f = len(self.feature_names)
+            if sv.shape[0] == n_f and sv.shape[1] >= 2:
+                # Shape is (24, 2) -> Take Class 1 column (CKD/High Risk)
+                sv = sv[:, 1]
+            elif sv.shape[1] == n_f and sv.shape[0] >= 2:
+                # Shape is (2, 24) -> Take Class 1 row
+                sv = sv[1, :]
+            else:
+                # Just take first slice as last resort
+                sv = sv[0]
+            
+        # Ensure 1D
         if sv.ndim == 0:
             sv = np.array([sv])
         elif sv.ndim > 1:
-            sv = sv[0]
+            sv = sv.flatten()[:len(self.feature_names)]
             
         # 2. Handle base value reduction
         bv = self.explainer.expected_value
         if hasattr(bv, "__len__"):
-            # If it's a list or multi-D array
             bv_arr = np.array(bv).flatten()
             if bv_arr.size > 1:
                 bv = bv_arr[1] # Take positive class
             else:
                 bv = bv_arr[0]
         elif isinstance(bv, np.ndarray) and bv.ndim == 0:
-            # Handle 0-D numpy arrays
             bv = float(bv)
             
         return sv, float(bv)
