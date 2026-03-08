@@ -306,6 +306,9 @@ class SHAPExplainer:
         # Create waterfall plot
         plt.figure(figsize=(10, 8))
         
+        # Map feature names to display names using FEATURE_DESCRIPTIONS
+        display_names = [self.FEATURE_DESCRIPTIONS.get(f, {}).get('name', f.upper()) for f in self.feature_names]
+        
         # Create explanation object for waterfall plot
         base_value = self.explainer.expected_value
         if isinstance(base_value, list):
@@ -315,11 +318,11 @@ class SHAPExplainer:
             values=shap_values,
             base_values=base_value,
             data=X.iloc[0].values,
-            feature_names=self.feature_names
+            feature_names=display_names
         )
         
         shap.waterfall_plot(explanation, max_display=15, show=False)
-        plt.title('SHAP Feature Contributions', fontsize=14, fontweight='bold')
+        plt.title('Patient-Specific Risk Drivers', fontsize=14, fontweight='bold')
         plt.tight_layout()
         
         if output_path:

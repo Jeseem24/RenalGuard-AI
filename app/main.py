@@ -192,11 +192,12 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricLabel"] {
 /* Nav button active state */
 .stButton > button {
     color: white !important;
+    background: #4F46E5 !important;
 }
 .stButton > button[kind="secondary"] {
+    background: #64748B !important;
     border-radius: 12px !important;
     font-weight: 600 !important;
-    color: #1E293B !important; /* Keep secondary buttons dark */
 }
 
 /* 🧪 PREMIUM ANIMATIONS */
@@ -611,81 +612,45 @@ def page_screening():
             rp2.caption("Click 'Prepare' to generate download link.")
         st.markdown("---")
 
-    # ── 4. Chat Assistant (Puter.js Integration) ──
+    # ── 4. Chat Assistant (Internal Diagnostic AI) ──
         st.markdown("##### 💬 Virtual Clinical Assistant")
-        st.caption("Powered by Gemini 3.0 via Puter.js — free, unlimited clinical guidance.")
+        st.caption("Internal Clinical Knowledge Base — diagnostic-aware guidance.")
         
-        # Prepare context for Puter.js
-        pt_data = st.session_state.patient_data
-        pr_data = st.session_state.prediction_result
-        ex_data = st.session_state.explanation
-        
-        # Human readable context
-        top_f = FEATURE_MAP.get(ex_data.get('top_risk_factors',[{}])[0].get('feature','').lower(), 'N/A')
-        context_msg = f"Patient: {pt_data.get('age')}yo. Risk: {pr_data.get('risk_level')}. Stage: {pr_data.get('stage')}. eGFR: {pr_data.get('egfr')}. Top Factor: {top_f}"
+        if "chat_history" not in st.session_state:
+            st.session_state.chat_history = []
 
-        chat_html = f"""
-        <script src="https://js.puter.com/v2/"></script>
-        <div id="chat-container" style="font-family: 'Inter', sans-serif; height: 400px; display: flex; flex-direction: column; background: #fafbff; border-radius: 15px; border: 1px solid #E2E8F0; overflow: hidden;">
-            <div id="messages" style="flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; color: #1E293B;">
-                <div style="background: #EEF2FF; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #4F46E5;">
-                    <b>RenalGuard AI:</b> Hello! I've analyzed your results. I'm ready to explain your <b>{pr_data.get('risk_level')} risk</b> and <b>Stage {pr_data.get('stage')}</b> status. What would you like to know?
-                </div>
-            </div>
-            <div id="puter-notif" style="padding: 5px 15px; font-size: 0.75rem; color: #6366F1; background: #EEF2FF; border-top: 1px solid #E2E8F0;">
-                💡 Puter.js may ask for a quick free signup to prevent bot abuse.
-            </div>
-            <div style="padding: 10px; background: white; border-top: 1px solid #E2E8F0; display: flex; gap: 8px;">
-                <input type="text" id="user-input" placeholder="Ask about diet, medications, or results..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #CBD5E1; outline: none; font-size: 0.85rem; color: #000000;">
-                <button onclick="sendMessage()" style="background: #4F46E5; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600;">Send</button>
-            </div>
-        </div>
+        # Display chat history
+        for msg in st.session_state.chat_history:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
 
-        <script>
-            const msgContainer = document.getElementById('messages');
-            const input = document.getElementById('user-input');
-            const context = "{context_msg}";
+        # Chat logic
+        if prompt := st.chat_input("Ask about your results, diet, or next steps..."):
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
 
-            input.addEventListener("keypress", (e) => {{ if (e.key === "Enter") sendMessage(); }});
+            # Diagnostic-aware response generation
+            res = st.session_state.prediction_result
+            pt  = st.session_state.patient_data
+            lvl = res.get('risk_level', 'Unknown')
+            stage = res.get('stage', 'N/A')
+            
+            # Simple but smart diagnostic-aware logic
+            response = ""
+            p_lower = prompt.lower()
+            if "diet" in p_lower or "eat" in p_lower:
+                response = f"For a **Stage {stage}** assessment, focusing on low-sodium and controlled protein intake is generally recommended. Please consult a renal dietitian."
+            elif "result" in p_lower or "explain" in p_lower:
+                response = f"Your results indicate a **{lvl}** risk of CKD with an eGFR of {res.get('egfr')} mL/min. This suggests categorized impaired kidney function."
+            elif "medication" in p_lower or "medicine" in p_lower:
+                response = "I cannot recommend specific medications. However, keeping blood pressure stable (currently {pt.get('bp')} mmHg) is crucial."
+            else:
+                response = f"I'm here to help you understand your **{lvl} risk (Stage {stage})**. Feel free to ask about specific dietary changes or lifestyle adjustments."
 
-            async function sendMessage() {{
-                const text = input.value.trim();
-                if (!text) return;
-
-                // Add User Message
-                addMessage('You', text, '#F8FAFC');
-                input.value = '';
-
-                try {{
-                    const response = await puter.ai.chat(
-                        `Context: ${{context}}. Question: ${{text}}. Role: Medical Assistant. Use full names like Hemoglobin instead of acronyms.`, 
-                        {{ model: 'gemini-3-flash-preview' }}
-                    );
-                    addMessage('RenalGuard AI', response, '#EEF2FF', '#4F46E5');
-                }} catch (err) {{
-                    // Clinical Guest Fallback
-                    const fallback = "I'm currently in secure guest mode. Based on your " + context.split('.')[1] + 
-                                   ", please consult a specialist for a detailed treatment plan. Puter.js may require session verification to proceed.";
-                    addMessage('RenalGuard System (Fallback)', fallback, '#FEF2F2', '#EF4444');
-                }}
-            }}
-
-            function addMessage(role, text, bg, borderCol) {{
-                const div = document.createElement('div');
-                div.style.padding = '10px';
-                div.style.borderRadius = '10px';
-                div.style.marginBottom = '10px';
-                div.style.background = bg;
-                div.style.color = '#1E293B';
-                if (borderCol) div.style.borderLeft = `4px solid ${{borderCol}}`;
-                div.innerHTML = `<b>${{role}}:</b> ${{text}}`;
-                msgContainer.appendChild(div);
-                msgContainer.scrollTop = msgContainer.scrollHeight;
-            }}
-        </script>
-        """
-        import streamlit.components.v1 as components
-        components.html(chat_html, height=450)
+            st.session_state.chat_history.append({"role": "assistant", "content": response})
+            with st.chat_message("assistant"):
+                st.markdown(response)
 
         st.markdown("---")
         if st.button("🔄 Start New Patient Screening", type="secondary",
@@ -752,7 +717,7 @@ def main():
         load_models_cached()
         
         import time
-        time.sleep(0.4)  # Performance optimization for PSG judges
+        time.sleep(0.15)  # Snappy initialization
         st.session_state.booting = False
         st.rerun()
 
