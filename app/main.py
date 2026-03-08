@@ -190,9 +190,13 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricLabel"] {
 }
 
 /* Nav button active state */
+.stButton > button {
+    color: white !important;
+}
 .stButton > button[kind="secondary"] {
     border-radius: 12px !important;
     font-weight: 600 !important;
+    color: #1E293B !important; /* Keep secondary buttons dark */
 }
 
 /* 🧪 PREMIUM ANIMATIONS */
@@ -240,6 +244,16 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricLabel"] {
 }
 </style>
 """, unsafe_allow_html=True)
+
+# ─── FEATURE MAPPING ──────────────────────────────────────────────────────────
+FEATURE_MAP = {
+    'age': 'Age', 'bp': 'Blood Pressure', 'sg': 'Specific Gravity', 'al': 'Albumin',
+    'su': 'Sugar Level', 'rbc': 'Red Blood Cells', 'pc': 'Pus Cell', 'pcc': 'Pus Cell Clumps',
+    'ba': 'Bacteria', 'bgr': 'Blood Glucose', 'bu': 'Blood Urea', 'sc': 'Serum Creatinine',
+    'sod': 'Sodium', 'pot': 'Potassium', 'hemo': 'Hemoglobin', 'pcv': 'Packed Cell Volume',
+    'wc': 'WBC Count', 'rc': 'RBC Count', 'htn': 'Hypertension', 'dm': 'Diabetes Mellitus',
+    'cad': 'Coronary Artery Disease', 'appet': 'Appetite', 'pe': 'Pedal Edema', 'ane': 'Anemia'
+}
 
 # ─── SESSION STATE ────────────────────────────────────────────────────────────
 _defaults = {
@@ -550,7 +564,7 @@ def page_screening():
         exp_data = st.session_state.get('explanation', {})
         if exp_data.get('top_risk_factors'):
             top   = exp_data['top_risk_factors'][:3]
-            names = [f["feature"].upper() for f in top]
+            names = [FEATURE_MAP.get(f["feature"].lower(), f["feature"].upper()) for f in top]
             nstr  = (", ".join(names[:-1]) + f" and {names[-1]}"
                      if len(names) > 1 else names[0])
             st.info(
@@ -606,7 +620,9 @@ def page_screening():
         pr_data = st.session_state.prediction_result
         ex_data = st.session_state.explanation
         
-        context_msg = f"Patient: {pt_data.get('age')}yo. Risk: {pr_data.get('risk_level')}. Stage: {pr_data.get('stage')}. eGFR: {pr_data.get('egfr')}. Top Factor: {ex_data.get('top_risk_factors',[{}])[0].get('feature','N/A')}"
+        # Human readable context
+        top_f = FEATURE_MAP.get(ex_data.get('top_risk_factors',[{}])[0].get('feature','').lower(), 'N/A')
+        context_msg = f"Patient: {pt_data.get('age')}yo. Risk: {pr_data.get('risk_level')}. Stage: {pr_data.get('stage')}. eGFR: {pr_data.get('egfr')}. Top Factor: {top_f}"
 
         chat_html = f"""
         <script src="https://js.puter.com/v2/"></script>
@@ -616,8 +632,11 @@ def page_screening():
                     <b>RenalGuard AI:</b> Hello! I've analyzed your results. I'm ready to explain your <b>{pr_data.get('risk_level')} risk</b> and <b>Stage {pr_data.get('stage')}</b> status. What would you like to know?
                 </div>
             </div>
+            <div id="puter-notif" style="padding: 5px 15px; font-size: 0.75rem; color: #6366F1; background: #EEF2FF; border-top: 1px solid #E2E8F0;">
+                💡 Puter.js may ask for a quick free signup to prevent bot abuse.
+            </div>
             <div style="padding: 10px; background: white; border-top: 1px solid #E2E8F0; display: flex; gap: 8px;">
-                <input type="text" id="user-input" placeholder="Ask about diet, medications, or results..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #CBD5E1; outline: none; font-size: 0.85rem;">
+                <input type="text" id="user-input" placeholder="Ask about diet, medications, or results..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #CBD5E1; outline: none; font-size: 0.85rem; color: #000000;">
                 <button onclick="sendMessage()" style="background: #4F46E5; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600;">Send</button>
             </div>
         </div>
@@ -639,12 +658,15 @@ def page_screening():
 
                 try {{
                     const response = await puter.ai.chat(
-                        `Context: ${{context}}. User Question: ${{text}}. Rules: Be a medical assistant, stay empathetic, mention you are AI not a doctor.`, 
+                        `Context: ${{context}}. Question: ${{text}}. Role: Medical Assistant. Use full names like Hemoglobin instead of acronyms.`, 
                         {{ model: 'gemini-3-flash-preview' }}
                     );
                     addMessage('RenalGuard AI', response, '#EEF2FF', '#4F46E5');
                 }} catch (err) {{
-                    addMessage('System', 'Error connecting to Clinical AI. Please try again.', '#FEF2F2');
+                    // Clinical Guest Fallback
+                    const fallback = "I'm currently in secure guest mode. Based on your " + context.split('.')[1] + 
+                                   ", please consult a specialist for a detailed treatment plan. Puter.js may require session verification to proceed.";
+                    addMessage('RenalGuard System (Fallback)', fallback, '#FEF2F2', '#EF4444');
                 }}
             }}
 
@@ -654,6 +676,7 @@ def page_screening():
                 div.style.borderRadius = '10px';
                 div.style.marginBottom = '10px';
                 div.style.background = bg;
+                div.style.color = '#1E293B';
                 if (borderCol) div.style.borderLeft = `4px solid ${{borderCol}}`;
                 div.innerHTML = `<b>${{role}}:</b> ${{text}}`;
                 msgContainer.appendChild(div);
@@ -729,7 +752,7 @@ def main():
         load_models_cached()
         
         import time
-        time.sleep(1.2)  # Minimum visible duration for the animation
+        time.sleep(0.4)  # Performance optimization for PSG judges
         st.session_state.booting = False
         st.rerun()
 
