@@ -211,13 +211,13 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricLabel"] {
 .rg-boot-overlay {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(255,255,255,0.98);
-    z-index: 999999;
+    background: rgba(255,255,255,1.0); /* Full opacity for better masking */
+    z-index: 9999999;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
 }
 
 .rg-boot-loader {
@@ -433,11 +433,13 @@ def page_screening():
                 wc    = st.number_input("WBC Count (cells/cumm)", 2000, 25000, 8000)
                 rc    = st.number_input("RBC Count (millions/cmm)", 2.0, 8.0, 5.0, step=0.1)
 
+            st.markdown('<div class="rg-pulse" style="border-radius: 12px; padding: 2px;">', unsafe_allow_html=True)
             submitted = st.form_submit_button(
                 "⚡ Execute Diagnostic Analysis",
                 type="primary",
                 width="stretch"
             )
+            st.markdown('</div>', unsafe_allow_html=True)
 
     # ─── RESULT PANEL ─────────────────────────────
     with right:
@@ -722,8 +724,12 @@ def main():
             <div class="rg-boot-text">⚕️ Initializing Clinical AI Engine...</div>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Actually load models while the overlay is shown
+        load_models_cached()
+        
         import time
-        time.sleep(1.8)  # Dramatic pause for the wowsome factor
+        time.sleep(1.2)  # Minimum visible duration for the animation
         st.session_state.booting = False
         st.rerun()
 
