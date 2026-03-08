@@ -887,8 +887,12 @@ def page_screening():
                     st.session_state.shap_img      = b64
                     st.session_state.shap_done     = True
                 except Exception as e:
+                    import traceback
                     st.session_state.shap_done = True
                     st.caption(f"⚠️ SHAP explanation unavailable: {e}")
+                    st.code(traceback.format_exc())
+                    print("SHAP ERROR TRACEBACK:")
+                    traceback.print_exc()
 
         # ── Render SHAP plain-English text ────
         if st.session_state.plain_english:

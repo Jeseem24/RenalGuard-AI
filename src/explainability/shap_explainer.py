@@ -68,34 +68,52 @@ class SHAPExplainer:
     def _get_reduced_sv(self, X: pd.DataFrame) -> tuple:
         """Helper to get 1D SHAP values and scalar base value reliably."""
         sv_raw = self.explainer.shap_values(X)
+        n_features = len(self.feature_names)
         
-        # 1. Handle value reduction (List -> Array)
+        # 1. Force SV into a standard numpy array, flattening lists if necessary
         if isinstance(sv_raw, list):
-            sv = sv_raw[1] if len(sv_raw) > 1 else sv_raw[0]
+            sv_raw = np.array(sv_raw)
+            if sv_raw.ndim >= 3:
+                 # Usually (classes, samples, features) e.g., (2, 1, 24)
+                 sv = sv_raw[1] if sv_raw.shape[0] > 1 else sv_raw[0]
+            else:
+                 sv = sv_raw
         else:
-            sv = sv_raw
+            sv = np.array(sv_raw)
             
-        # sv is likely (1, 24) or (1, 24, 2)
+        # Strip single-dimensional entries (e.g. 1 sample)
         sv = np.squeeze(sv)
         
-        # If still 2D after squeezing, it's (Features, Classes) or (Classes, Features)
-        if sv.ndim == 2:
-            n_f = len(self.feature_names)
-            if sv.shape[0] == n_f and sv.shape[1] >= 2:
-                # Shape is (24, 2) -> Take Class 1 column (CKD/High Risk)
-                sv = sv[:, 1]
-            elif sv.shape[1] == n_f and sv.shape[0] >= 2:
-                # Shape is (2, 24) -> Take Class 1 row
-                sv = sv[1, :]
-            else:
-                # Just take first slice as last resort
-                sv = sv[0]
-            
-        # Ensure 1D
+        # 2. Robust Feature Extraction
+        # We MUST return a 1D array of shape (n_features,)
         if sv.ndim == 0:
-            sv = np.array([sv])
-        elif sv.ndim > 1:
-            sv = sv.flatten()[:len(self.feature_names)]
+            sv = np.zeros(n_features)
+        elif sv.ndim == 1:
+            if len(sv) == n_features:
+                pass # Perfect
+            elif len(sv) > n_features:
+                sv = sv[:n_features]
+            else:
+                # Too small, pad with zeros to prevent IndexError
+                sv = np.pad(sv, (0, n_features - len(sv)), 'constant')
+        elif sv.ndim == 2:
+            # Could be (features, classes) or (classes, features)
+            if sv.shape[0] == n_features:
+                sv = sv[:, 1] if sv.shape[1] > 1 else sv[:, 0]
+            elif sv.shape[1] == n_features:
+                sv = sv[1, :] if sv.shape[0] > 1 else sv[0, :]
+            else:
+                # Force resize if shapes are completely unexpected
+                sv = sv.flatten()
+                if len(sv) >= n_features:
+                    sv = sv[:n_features]
+                else:
+                    sv = np.pad(sv, (0, n_features - len(sv)), 'constant')
+        else:
+            # 3D+ fallback
+            sv = sv.flatten()[:n_features]
+            if len(sv) < n_features:
+                sv = np.pad(sv, (0, n_features - len(sv)), 'constant')
             
         # 2. Handle base value reduction
         bv = self.explainer.expected_value
