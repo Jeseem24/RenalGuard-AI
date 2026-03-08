@@ -64,17 +64,38 @@ class SHAPExplainer:
         except Exception:
             self.explainer = shap.KernelExplainer(self.model.predict_proba, bg)
         self._background_set = True
+    
+    def _get_reduced_sv(self, X: pd.DataFrame) -> tuple:
+        """Helper to get 1D SHAP values and scalar base value reliably."""
+        sv_raw = self.explainer.shap_values(X)
+        
+        # 1. Handle value reduction
+        if isinstance(sv_raw, list):
+            sv = sv_raw[1] if len(sv_raw) > 1 else sv_raw[0]
+        else:
+            sv = sv_raw
+            
+        sv = np.squeeze(sv)
+        if sv.ndim == 0:
+            sv = np.array([sv])
+        elif sv.ndim > 1:
+            sv = sv[0]
+            
+        # 2. Handle base value reduction
+        bv = self.explainer.expected_value
+        if isinstance(bv, (list, np.ndarray)):
+            bv = np.array(bv).flatten()
+            bv = bv[1] if len(bv) > 1 else bv[0]
+            
+        return sv, float(bv)
 
     def explain_prediction(self, X: pd.DataFrame) -> Dict[str, Any]:
         """Generate SHAP explanation for a single patient."""
         if self.explainer is None:
             raise RuntimeError("Call fit() first.")
 
-        sv = self.explainer.shap_values(X)
-        if isinstance(sv, list):
-            sv = sv[1] if len(sv) > 1 else sv[0]
-        if sv.ndim > 1:
-            sv = sv[0]
+        # Get robustly reduced values
+        sv, base_value = self._get_reduced_sv(X)
 
         total_abs = np.sum(np.abs(sv))
         contributions = []
@@ -141,20 +162,13 @@ class SHAPExplainer:
         if self.explainer is None:
             raise RuntimeError("Call fit() first.")
 
-        sv = self.explainer.shap_values(X)
-        if isinstance(sv, list):
-            sv = sv[1] if len(sv) > 1 else sv[0]
-        if sv.ndim > 1:
-            sv = sv[0]
-
-        base_value = self.explainer.expected_value
-        if isinstance(base_value, (list, np.ndarray)):
-            base_value = base_value[1] if len(base_value) > 1 else base_value[0]
+        # Get robustly reduced values
+        sv, base_value = self._get_reduced_sv(X)
 
         display_names = [self.FEATURE_CLINICAL.get(f, {}).get('name', f.upper()) for f in self.feature_names]
 
         explanation_obj = shap.Explanation(
-            values=sv, base_values=float(base_value),
+            values=sv, base_values=base_value,
             data=X.iloc[0].values, feature_names=display_names,
         )
 
